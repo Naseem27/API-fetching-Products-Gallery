@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Gallery</title>
+  <style>
+    body {
+      text-align: center;
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #111;
+      color: #eee;
+    }
+
+    .head {
+      margin-top: 32px;
+      padding: 16px;
+      font-size: large;
+      color: #0ff;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .container input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #000;
+      color: #0ff;
+      font-size: 1rem;
+      min-width: 220px;
+    }
+
+    .container button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .container button:not(.clbtn) {
+      background: #0ff;
+      color: #000;
+    }
+
+    .container button:hover:not(.clbtn) {
+      background: #0cc;
+    }
+
+    .container button.clbtn {
+      background: #333;
+      color: #eee;
+    }
+
+    .container button:hover.clbtn {
+      background: #444;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      position: relative;
+      border: 1px solid var(--color-text-light);
+      background-color: #eee;
+      padding: 10px;
+      overflow: visible;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      bottom: 1px;
+      left: 1px;
+      width: 100%;
+      height: 100%;
+      transform: translate(-0.5rem, 0.5rem);
+      z-index: -1;
+      transition: 0.25s;
+    }
+
+    .card:nth-child(6n+1) { --card-color: #00d6e9; }
+    .card:nth-child(6n+2) { --card-color: #15e3d9; }
+    .card:nth-child(6n+3) { --card-color: #56edbf; }
+    .card:nth-child(6n+4) { --card-color: #8cf5a2; }
+    .card:nth-child(6n+5) { --card-color: #c2f985; }
+    .card:nth-child(6n+6) { --card-color: #f9f871; }
+
+    .card:nth-child(n)::before {
+      background: repeating-linear-gradient(-45deg,
+          var(--card-color) 0,
+          var(--card-color) 4px,
+          transparent 0,
+          transparent 8px);
+    }
+
+    .card:nth-child(n):hover::before {
+      transform: translate(-1rem, 1rem);
+    }
+
+    .card {
+      color: var(--card-color);
+      border-color: var(--card-color);
+    }
+
+    .card img {
+      width: 100%;
+  
+      
+    }
+
+    .card-content {
+      padding: 16px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-content h2 {
+      font-size: 1.1rem;
+      margin: 0;
+      color: #000;
+    }
+
+    .brand {
+      font-size: 0.85rem;
+      color: #000;
+      margin-top: 4px;
+    }
+
+    .description {
+      font-size: 0.9rem;
+      color: gray;
+      margin: 8px 0;
+    }
+
+    .rate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .price {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: blue;
+    }
+
+    .per {
+      font-size: 0.9rem;
+      color: #000;
+    }
+
+    .rating {
+      margin: 8px 0;
+      color: #f5a623;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .pagebtn {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 25px 0;
+    }
+
+    .pagebtn button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #0ff;
+      color: #000;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .pagebtn button:hover {
+      background: #0cc;
+    }
+
+    .pagebtn button:disabled {
+      background: #333;
+      color: #777;
+      cursor: default;
+    }
+
+    #status {
+      margin-top: 10px;
+      color: #aaa;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <h1>Product Gallery</h1>
+  </div>
+
+  <div class="container">
+    <input id="searchInput" type="search" placeholder="Search Products..." />
+    <button id="sbtn">Search</button>
+    <button id="cbtn" class="clbtn">Clear</button>
+  </div>
+
+  <div id="Cards" class="cards"></div>
+
+  <div class="pagebtn">
+    <button id="pbtn">Prev</button>
+    <button id="nbtn">Next</button>
+  </div>
+
+  <p id="status">Loading products...</p>
+
+  <script>
+    const grid = document.getElementById("Cards");
+    const loading = document.getElementById("status");
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("sbtn");
+    const clearBtn = document.getElementById("cbtn");
+    const prevBtn = document.getElementById("pbtn");
+    const nextBtn = document.getElementById("nbtn");
+
+    let currentPage = 0;
+    const limit = 5;
+    let totalProducts = 0;
+    let currentQuery = "";
+
+    async function fetchProducts() {
+      loading.textContent = "Loading products...";
+      const skip = currentPage * limit;
+      let url = `https://dummyjson.com/products?limit=${limit}&skip=${skip}`;
+
+      if (currentQuery) {
+        url = `https://dummyjson.com/products/search?q=${currentQuery}&limit=${limit}&skip=${skip}`;
+      }
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        totalProducts = data.total || data.products.length;
+        renderProducts(data.products);
+      } catch (err) {
+        loading.textContent = "Failed to load products 😢";
+        console.error(err);
+      }
+    }
+
+    function renderProducts(products) {
+      grid.innerHTML = "";
+      if (!products || products.length === 0) {
+        loading.textContent = "No products found.";
+        return;
+      }
+
+      products.forEach(product => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+          <img src="${product.thumbnail}" alt="${product.title}">
+          <div class="card-content">
+            <h2>${product.title}</h2>
+            <div class="brand">${product.brand || "No Brand"}</div>
+            <p class="description">${product.description}</p>
+            <div class="rate">
+              <div class="price">$${product.price}</div>
+              <div class="per">(${product.discountPercentage}% off)</div>
+            </div>
+            <div class="rating">⭐ ${product.rating}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      const totalPages = Math.ceil(totalProducts / limit);
+      loading.textContent = `Page ${currentPage + 1} of ${totalPages}`;
+
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = currentPage + 1 >= totalPages;
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentPage++;
+      fetchProducts();
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 0) currentPage--;
+      fetchProducts();
+    });
+
+    searchBtn.addEventListener("click", () => {
+      currentQuery = searchInput.value.trim();
+      currentPage = 0;
+      fetchProducts();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      currentQuery = "";
+      searchInput.value = "";
+      currentPage = 0;
+      searchUsers();
+    });
+
+    fetchProducts();
+  </script>
+</body>
+</html>
